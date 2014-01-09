@@ -246,10 +246,20 @@ class DocumentPersister
         $options['upsert'] = true;
         $criteria = array('_id' => $data['$set']['_id']);
         unset($data['$set']['_id']);
-        // stupid php
+
+        // Do not send an empty $set modifier
         if (empty($data['$set'])) {
-            $data['$set'] = new \stdClass;
+            unset($data['$set']);
         }
+
+        /* If there are no modifiers remaining, we're inserting a document with 
+         * an identifier as its only field. Use the criteria as the replacement
+         * document.
+         */
+        if (empty($data)) {
+            $data = $criteria;
+        }
+
         $this->collection->update($criteria, $data, $options);
     }
 
