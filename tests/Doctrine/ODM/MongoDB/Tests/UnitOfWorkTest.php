@@ -48,6 +48,18 @@ class UnitOfWorkTest extends \Doctrine\ODM\MongoDB\Tests\BaseTest
         $this->assertTrue($this->uow->isScheduledForUpsert($user));
     }
 
+    public function testScheduleForEmbeddedUpsert()
+    {
+        $class = $this->dm->getClassMetadata('Documents\ForumUser');
+        $test = new EmbeddedUpsertDocument();
+        $test->id = (string) new \MongoId();
+        $this->assertFalse($this->uow->isScheduledForInsert($test));
+        $this->assertFalse($this->uow->isScheduledForUpsert($test));
+        $this->uow->persist($test);
+        $this->assertTrue($this->uow->isScheduledForInsert($test));
+        $this->assertFalse($this->uow->isScheduledForUpsert($test));
+    }
+
     public function testScheduleForUpsertWithNonObjectIdValues()
     {
         $doc = new UowCustomIdDocument();
@@ -557,5 +569,12 @@ class ArrayTest
 class UowCustomIdDocument
 {
     /** @ODM\Id(type="custom_id") */
+    public $id;
+}
+
+/** @ODM\EmbeddedDocument */
+class EmbeddedUpsertDocument
+{
+    /** @ODM\Id */
     public $id;
 }
