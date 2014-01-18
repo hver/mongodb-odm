@@ -383,6 +383,36 @@ class UnitOfWorkTest extends \Doctrine\ODM\MongoDB\Tests\BaseTest
         );
     }
 
+    public function testRegisterManagedEmbeddedDocumentWithMappedIdAndNullValue()
+    {
+        $document = new EmbeddedDocumentWithId();
+        $oid = spl_object_hash($document);
+
+        $this->uow->registerManaged($document, null, array());
+
+        $this->assertEquals($oid, $this->uow->getDocumentIdentifier($document));
+    }
+
+    public function testRegisterManagedEmbeddedDocumentWithoutMappedId()
+    {
+        $document = new EmbeddedDocumentWithoutId();
+        $oid = spl_object_hash($document);
+
+        $this->uow->registerManaged($document, null, array());
+
+        $this->assertEquals($oid, $this->uow->getDocumentIdentifier($document));
+    }
+
+    public function testRegisterManagedEmbeddedDocumentWithMappedIdStrategyNoneAndNullValue()
+    {
+        $document = new EmbeddedDocumentWithIdStrategyNone();
+        $oid = spl_object_hash($document);
+
+        $this->uow->registerManaged($document, null, array());
+
+        $this->assertEquals($oid, $this->uow->getDocumentIdentifier($document));
+    }
+
     protected function getDocumentManager()
     {
         return new \Stubs\DocumentManager();
@@ -576,5 +606,24 @@ class UowCustomIdDocument
 class EmbeddedUpsertDocument
 {
     /** @ODM\Id */
+    public $id;
+}
+
+/** @ODM\EmbeddedDocument */
+class EmbeddedDocumentWithoutId
+{
+}
+
+/** @ODM\EmbeddedDocument */
+class EmbeddedDocumentWithId
+{
+    /** @ODM\Id */
+    public $id;
+}
+
+/** @ODM\EmbeddedDocument */
+class EmbeddedDocumentWithIdStrategyNone
+{
+    /** @ODM\Id(strategy="none") */
     public $id;
 }
